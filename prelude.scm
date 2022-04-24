@@ -1,3 +1,20 @@
+(define all-member
+  (lambda (ls1 ls2)
+    (cond
+      [(null? ls1) #t]
+      [(member (car ls1) ls2)
+       (all-member (cdr ls1) ls2)]
+      [else #f])))
+
+(define set-equal?
+  (lambda (ls1 ls2)
+    (cond
+      [(and (list? ls1) (list? ls2))
+       (and (all-member ls1 ls2)
+            (all-member ls2 ls1))]
+      [else
+       (equal? ls1 ls2)])))
+
 (define-syntax test-check
   (syntax-rules ()
     ((_ title tested-expression expected-result)
@@ -5,7 +22,7 @@
        (printf "Testing ~s\n" title)
        (let* ((expected expected-result)
               (produced tested-expression))
-         (or (equal? expected produced)
+         (or (set-equal? expected produced)
              (errorf 'test-check
                "Failed: ~a\nExpected: ~a\nComputed: ~a\n"
                'tested-expression expected produced)))))))
