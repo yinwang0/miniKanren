@@ -166,9 +166,9 @@
   (lambda (n f)
     (if (and n (zero? n)) 
       '()
-      (case-inf (f)
+      (case-inf f
         (() '())
-        ((f) (take n f))
+        ((f) (take n (f)))
         ((a) a)
         ((a f)
          (cons (car a)
@@ -191,16 +191,17 @@
        (inc
          (let ((x (var 'x)) ...)
            (bind* (g0 a) g ...)))))))
- 
-(define-syntax bind*
-  (syntax-rules ()
-    ((_ e) e)
-    ((_ e g0 g ...) (bind* (bind e g0) g ...))))
- 
+
+(define foldl fold-left)
+
+(define bind*
+  (lambda (v . gs)
+    (foldl bind v gs)))
+
 (define bind
   (lambda (a-inf g)
     (case-inf a-inf
-      (() (mzero))
+      (() #f)
       ((f) (inc (bind (f) g)))
       ((a) (g a))
       ((a f) (mplus (g a) (lambdaf@ () (bind (f) g)))))))
@@ -274,9 +275,9 @@
        (let ((x (walk* x a)) ...)
          ((exist () g g* ...) a))))))
 
-(define succeed (== #f #f))
+(define succeed (lambda (s) s))
 
-(define fail (== #f #t))
+(define fail (lambda (s) #f))
 
 (define onceo
   (lambda (g)
